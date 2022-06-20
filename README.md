@@ -7,7 +7,7 @@ of wider interset:
 > - https://arxiv.org/abs/2105.03536
 > - https://mythic.ai/
 
-For setting up py:
+For setting up pi 4s:
 
 > - build bootable disk using ubuntu disk imager utils on 
 > - Instruction for installing ubuntu flavours [here](https://ubuntu.com/download/raspberry-pi)
