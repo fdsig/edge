@@ -7,6 +7,10 @@ of wider interset:
 > - https://arxiv.org/abs/2105.03536
 > - https://mythic.ai/
 
+# WandB Tracking, Versioning, Deployment and Monitoring:
+
+[here](https://wandb.ai/tinyml-hackathon)
+
 # For setting up pi 4s:
 
 > - build bootable disk using ubuntu disk imager utils on 
@@ -39,7 +43,7 @@ mv crushed.zip Images/crushed.zip
 cd Images && unzip crushed.zip
 ```
 
-# Camer streaming
+# Camera Streaming
 
 to do:
 - [x] stream from camera using ffmpeg and transformt bytes to array
@@ -53,3 +57,4 @@ To do
 - [ ] benchmanrk on device trining
 - [ ] stream from camera to jetson
 - [ ] deploy in the wild
+- [ ] transfer learning on manually labeled dataset
