@@ -1,11 +1,5 @@
 A respository for of examples of deploying models (classifictiaon, object detection and semantic segmentation) On device training and on Raspberry Pi 4, Nvidia Jetson, 
 
-of wider interset:
-
-> -  https://petewarden.com/2021/08/05/one-weird-trick-to-shrink-convolutional-networks-for-tinyml/
-> - https://github.com/jetpacapp/pi-gemm
-> - https://arxiv.org/abs/2105.03536
-> - https://mythic.ai/
 
 # WandB Tracking, Versioning, Deployment and Monitoring:
 
@@ -58,3 +52,13 @@ To do
 - [ ] stream from camera to jetson
 - [ ] deploy in the wild
 - [ ] transfer learning on manually labeled dataset
+
+## of wider interset:
+
+> - https://petewarden.com/2021/08/05/one-weird-trick-to-shrink-convolutional-networks-for-tinyml/
+> - https://github.com/jetpacapp/pi-gemm
+> - https://arxiv.org/abs/2105.03536
+> - https://mythic.ai/
+> - https://developer.nvidia.com/embedded/jetson-tx2
+> - https://ffmpeg.org/
+
