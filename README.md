@@ -1,4 +1,4 @@
-A respository for of examples of deploying timm models on Raspberry Pi 4
+A respository for of examples of deploying models (classifictiaon, object detection and semantic segmentation) On device training and on Raspberry Pi 4, Nvidia Jetson, 
 
 of wider interset:
 
@@ -7,7 +7,7 @@ of wider interset:
 > - https://arxiv.org/abs/2105.03536
 > - https://mythic.ai/
 
-For setting up pi 4s:
+# For setting up pi 4s:
 
 > - build bootable disk using ubuntu disk imager utils on 
 > - Instruction for installing ubuntu flavours [here](https://ubuntu.com/download/raspberry-pi)
@@ -25,6 +25,8 @@ configure python 3.7.13 used here for compatibilty and reproducibily if trining 
 
 log in to raspberry pi and git clone repository
 
+## For Classification inference
+
 dowload compressed and resized ava dataset found [here](http://www.desigley.space/ava) as crushed.zip (not whole origional sized dataset). 
 
 scp this to raspberry pi using `scp crushed.zip  host@pi4:~/crushed.zip`
@@ -37,3 +39,17 @@ mv crushed.zip Images/crushed.zip
 cd Images && unzip crushed.zip
 ```
 
+# Camer streaming
+
+to do:
+- [x] stream from camera using ffmpeg and transformt bytes to array
+- [ ] get running version that can handle recording/ streaming for many hours
+- [ ] embed inferece into streaming process and establish bottlencks
+
+# Nvidia Jetson NX 8 GB
+
+To do
+- [ ] benchmark inferenc
+- [ ] benchmanrk on device trining
+- [ ] stream from camera to jetson
+- [ ] deploy in the wild
