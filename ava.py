@@ -57,8 +57,8 @@ def scalar_resize(fid,scalar=None):
     return cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
 
 def get_df():
-    df = pd.read_csv('/content/image_utils/ava_meta_with_int_id_230721.csv')
-    display(df)
+    df = pd.read_csv('image_utils/ava_meta_with_int_id_230721.csv')
+    print(df)
     plt.hist(df['MLS'].values.ravel(), bins=10)
     plt.show()
     return df
@@ -231,7 +231,7 @@ def image_plot(image_dict, eval_list=None, super_title = None, n_images=None, ev
         fig.savefig(super_title+'.png')
         plt.show()
 
-def get_all():
+def get_all(subset:bool):
     '''meta fucntion for calling other fuctions'''
     df = get_df()
     df = meta_process(df=df)
