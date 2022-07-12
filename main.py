@@ -1,3 +1,4 @@
+from ast import arg
 import wandb
 import torch 
 import timm 
@@ -5,6 +6,7 @@ import platform
 
 from config import args
 from ava import get_all,data_samplers, data_transforms, ava_data_reflect
+from download import get_dataset
 if args.inference:
     from inference import deep_eval
 else:
@@ -16,10 +18,14 @@ else:
 
 
 
-
 if __name__=='__main__':
-
     wandb.login()
+    if args.get_dataset:
+        get_data = get_dataset(fid='crushed.zip',url = 'http://desigley.space/ava/crushed.zip')
+        get_data.get_zip()
+        get_data.unzip(out_dir='images')
+
+    
     df,y_g_dict, data, neg, pos = get_all(subset=True)
     reflect_transforms = data_transforms(size=224)
     data_load_dict = data_samplers(data,ava_data_reflect,batch_size=args.batch_size)
