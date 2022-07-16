@@ -6,11 +6,11 @@ The Nvidia jetson Nano looks like this, well inside an aluminum protection and c
 
 from the side:
 
-![](jetson_tx_2.png.png)
+![](jetson_tx_2.png)
 
 From the top:
 
-![](tx_2_fan.jpg.jpg)
+![](tx_2_fan.jpg)
 
 This is unmounted and on the bottom you can see the (peripheral component interconnect express)pcie slots 
 
