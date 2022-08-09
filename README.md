@@ -37,6 +37,16 @@ mv crushed.zip Images/crushed.zip
 cd Images && unzip crushed.zip
 ```
 
+
+# Khadas Vim3 (NPU)
+
+Set up and clone, using ssd M2 
+
+- [ ] benchmark 
+- [ ]
+- [ ] 
+
+
 # Camera Streaming
 
 to do:
@@ -46,12 +56,18 @@ to do:
 
 # Nvidia Jetson NX 8 GB
 
+
+
+
+
+
 To do
 - [ ] benchmark inferenc
 - [ ] benchmanrk on device trining
 - [ ] stream from camera to jetson
 - [ ] deploy in the wild
 - [ ] transfer learning on manually labeled dataset
+
 
 ## of wider interset:
 
