@@ -21,7 +21,44 @@ configure python 3.7.13 used here for compatibilty and reproducibily if trining 
 
 [pyenv](https://github.com/pyenv/pyenv) works for this on raspberry pi
 
+
+```bash
+sudo apt update -y
+
+```
+then:
+
+```bash
+apt install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl git
+```
+
+then (pyenv and pyenv virtualenv):
+
+```bash
+git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n eval "$(pyenv init -)"\nfi' >> ~/.bashrc
+git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
+echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
+```
+
+finally:
+
+```bash
+exec "$SHELL"
+```
+
+to create verison of python
+
+```pyenv install 3.10.1
+pyenv virtualenv 3.10.1 edge
+```
+
+
 log in to raspberry pi and git clone repository
+
+
 
 ## For Classification inference
 
