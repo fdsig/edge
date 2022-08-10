@@ -1,4 +1,6 @@
 from __future__ import print_function
+from typing import Callable
+from config import args
 import json
 import cv2
 import glob
@@ -60,9 +62,9 @@ def scalar_resize(fid, scalar=None):
 
 def get_df():
     df = pd.read_csv('image_utils/ava_meta_with_int_id_230721.csv')
-    print(df)
     plt.hist(df['MLS'].values.ravel(), bins=10)
-    plt.show()
+    if args.plot:
+        plt.show()
     return df
 
 
@@ -96,7 +98,7 @@ def one_hot(df):
 
 
 def sort_show():
-    ava = [i.path for i in os.scandir('Images/')]
+    ava = [i.path for i in os.scandir('../images/')]
     ava.sort()
     def read(fid): return cv2.cvtColor(cv2.imread(fid),
                                        cv2.COLOR_BGR2RGB)
@@ -110,7 +112,7 @@ def get_labels(df):
     y_df = one_hot(df)
     labels = (
         fid.name.split('.')[0]
-        for path in os.scandir('Images/')
+        for path in os.scandir('../images/')
         for fid in os.scandir(path.path))
     y_g = y_df.to_dict('index')
     return {str(y_g[pair_key]['ID_y']): y_g[pair_key] for pair_key in y_g}
@@ -130,31 +132,31 @@ def make_class_dir(df, y_g_dict):
           ⌊_class 1'''
 
     os.makedirs('data/', exist_ok=True)
-    train_dir = 'data/train/'
-    test_dir = 'data/test/'
+    train_dir = '../data/train/'
+    test_dir = '../data/test/'
     #!rm -rf data/train/ && rm -rf data/test/
     os.makedirs(train_dir, exist_ok=True)
     os.makedirs(test_dir, exist_ok=True)
     not_loaded_train, not_loaded = [], []
     test_df = df[df['set'] == 'test']
-    files_ = [i.name for i in os.scandir('Images/')]
+    files_ = [i.name for i in os.scandir('../images/')]
     test_set = test_df['image_name'].values
     for im_id in tqdm(test_set, colour=('#FF69B4')):
         key = im_id.strip('.jpg')
-        y_g_dict[key]['fid'] = 'data/test/'+im_id
+        y_g_dict[key]['fid'] = '../data/test/'+im_id
         try:
 
-            os.symlink('Images/'+im_id, 'data/test/'+im_id)
+            os.symlink('../images/'+im_id, 'data/test/'+im_id)
         except:
             not_loaded.append(im_id)
     train_df = df[df['set'].isin(['training', 'validation'])]
     train_set = train_df['image_name'].values
     for im_id in tqdm(train_set, colour=('#FF69B4')):
         key = im_id.strip('.jpg')
-        y_g_dict[key]['fid'] = 'data/train/'+im_id
+        y_g_dict[key]['fid'] = '../data/train/'+im_id
         try:
 
-            os.symlink('Images/'+im_id, 'data/train/'+im_id)
+            os.symlink('../images/'+im_id, '../data/train/'+im_id)
         except:
             not_loaded_train.append(im_id)
 
@@ -168,8 +170,9 @@ def class_wts(df):
     y = np.bincount(y_gt_)
     x = np.unique(y_gt_)
     print(len(y), len(x))
-    plt.bar(x, y)
-    plt.show()
+    if args.plot:
+        plt.bar(x, y)
+        plt.show()
     class_weights = class_weight.compute_class_weight(
         'balanced', classes=x, y=y_gt_)
     class_weights = torch.tensor(class_weights, dtype=torch.float)
@@ -214,6 +217,7 @@ def image_plot(image_dict, eval_list=None, super_title=None, n_images=None, eval
             ax.imshow(img)
         fig.suptitle(super_title, fontsize=24)
         fig.savefig(super_title+'.png')
+
         plt.show()
     else:
 
@@ -284,7 +288,7 @@ def data_transforms(size=None):
                 std=(0.229, 0.224, 0.225),
                 max_pixel_value=255.0, p=1.0),
             #A.augmentations.transforms.MedianBlur(blur_limit=7, always_apply=False, p=0.5)
-            A.augmentations.transforms.CoarseDropout(max_holes=10,
+            A.augmentations.dropout.CoarseDropout(max_holes=10,
                                                      max_height=72,
                                                      max_width=72,
                                                      min_holes=3,
@@ -303,7 +307,7 @@ def data_transforms(size=None):
                                                    hue=0.05,
                                                    always_apply=False,
                                                    p=0.1),
-            A.augmentations.transforms.Cutout(
+            A.augmentations.dropout.Cutout(
                 num_holes=8,
                 max_h_size=36,
                 max_w_size=36,
@@ -421,12 +425,13 @@ def plot_transform(data_dict):
     plt.savefig('transfroms.png', dpi=300)
 
 
-def data_samplers(data, data_class, batch_size=None):
+def data_samplers(reflect_transforms:dict,data:dict,ava_data_reflect:object, batch_size=None):
     '''retrurns data loaders called during training'''
     test_ids = [idx for idx in data['training']][:20]
-    # a small subset for debugging if needed <^_^>
-    data_tester = {key: data['training'][key] for key in test_ids}
-    #change back
+    # a small subset for debugging if needed <^_^> 
+    data_tester = {key:data['training'][key] for key in test_ids}
+   
+    print(f' {"*"*30}ids = {test_ids} data = {data_tester}')
 
     train_data_loader = ava_data_reflect(
         data['training'], transform=reflect_transforms['training']
@@ -437,11 +442,6 @@ def data_samplers(data, data_class, batch_size=None):
     test_data_loader = ava_data_reflect(
         data['test'], transform=reflect_transforms['test']
     )
-    data_load_dict = {
-        'training': train_data_loader,
-        'validation': val_data_loader,
-        'test': test_data_loader
-    }
     #Let there be 9 samples and 1 sample in class 0 and 1 respectively
     labels = [data['training'][idx]['threshold'] for idx in data['training']]
     class_counts = np.bincount(labels)
@@ -487,7 +487,7 @@ def seed_everything(seed):
     torch.backends.cudnn.deterministic = True
 
 
-def train_model(model, criterion,
+def train_model(model, run, criterion,
                 optimizer,
                 scheduler,
                 num_epochs=None,
@@ -568,7 +568,7 @@ def train_model(model, criterion,
                 phase+' acc': float(epoch_acc.cpu()),
                 phase + ' ballance_acc': ballance.mean()
             }
-            wandb.log({
+            run.log({
                 phase+' loss': epoch_loss,
                 phase+' acc': float(epoch_acc.cpu()),
                 phase + ' ballance_acc': ballance.mean()
@@ -590,7 +590,7 @@ def train_model(model, criterion,
                             'model_state_dict': model.state_dict(),
                             'optimizer_state_dict': optimizer.state_dict()
                             }, did/model_name)
-                wandb.log({'best_epoch': epoch})
+                run.log({'best_epoch': epoch})
                 print(f'Saving {model_name} in {did.name}')
                 #model save
 
@@ -601,7 +601,7 @@ def train_model(model, criterion,
         'seconds': t_seconds,
         'best_acc': best_acc.cpu().tolist()
     }
-    wandb.log(train_overall)
+    run.log(train_overall)
     print(f'training time = {train_overall}')
     with open(did/('train_overall'+'.json'), 'w') as handle:
         json.dump(train_overall, handle)
@@ -684,6 +684,11 @@ def loader(models):
 def deep_eval(model):
     '''validatioan loop ruturns metrics dict for passed model'''
     criterion = nn.CrossEntropyLoss()
+    if torch.cuda.is_available():
+        device  = 'cuda'
+    else:
+        device = 'cpu'
+
     model.to(device)
     results_dict = {}
     with torch.no_grad():

@@ -1,0 +1,20 @@
+  0%|                                                                                                                                            | 0/19899 [00:00<?, ?it/s][ WARN:0@6.219] global /Users/xperience/actions-runner/_work/opencv-python/opencv-python/opencv/modules/imgcodecs/src/loadsave.cpp (239) findDecoder imread_('Images/86931.jpg'): can't open/read file: check file path/integrity
+  0%|                                                                                                                                            | 0/19899 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/Users/fridadesigley/edge/main.py", line 58, in <module>
+    evaluation = deep_eval(model, data_load_dict=data_loader)
+  File "/Users/fridadesigley/edge/inference.py", line 433, in deep_eval
+    for data, label, fid in tqdm(data_load_dict['test']):
+  File "/Users/fridadesigley/.pyenv/versions/edge/lib/python3.10/site-packages/tqdm/std.py", line 1195, in __iter__
+    for obj in iterable:
+  File "/Users/fridadesigley/.pyenv/versions/edge/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 652, in __next__
+    data = self._next_data()
+  File "/Users/fridadesigley/.pyenv/versions/edge/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 692, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+  File "/Users/fridadesigley/.pyenv/versions/edge/lib/python3.10/site-packages/torch/utils/data/_utils/fetch.py", line 51, in fetch
+    data = self.dataset[possibly_batched_index]
+  File "/Users/fridadesigley/edge/ava.py", line 732, in __getitem__
+    img = read(img)
+  File "/Users/fridadesigley/edge/ava.py", line 729, in read
+    def read(fid): return cv2.cvtColor(cv2.imread(
+cv2.error: OpenCV(4.6.0) /Users/xperience/actions-runner/_work/opencv-python/opencv-python/opencv/modules/imgproc/src/color.cpp:182: error: (-215:Assertion failed) !_src.empty() in function 'cvtColor'

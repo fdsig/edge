@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     df, y_g_dict, data, neg, pos = get_all(subset=True)
     reflect_transforms = data_transforms(size=224)
-    data_loader = data_samplers(
+    data_load_dict = data_samplers(
         data=data, 
         reflect_transforms=reflect_transforms,
         ava_data_reflect=ava_data_reflect,
@@ -35,29 +35,16 @@ if __name__ == '__main__':
         print(f'running in inference mode{"8"*30}')
         wb_tags = ['inference', platform.system(), platform.system(),
                    platform.release()]
-        if  args.entity and args.project and args.tags:
-            run = wandb.init(entity=args.entity, project=args.project, tags=args.tags)
-        elif args.entity and args.project:
-            run = wandb.init(entity=args.entity, project=args.project)
-        elif args.d.exists():
-            with args.d.open('r') as hndl:
-                for default in hndl.readlines():
-                    default = default.split('=')
-                    if len(default)==2:
-                        arg_,param = default
-                        arg_= arg_.strip('\n').strip(' ')
-                        param = param.strip('\n').strip(' ')
-                        args.arg_=param
-            run = wandb.init(entity=args.entity, project=args.project)        
+        wandb.init(entity=args.entity, project=args.project, tags=args.tags)
         model = timm.create_model('mobilevit_xxs')
         model.head.fc.out_features = 2
         loaded = torch.load('models/mobilevit_xxs',
                             map_location=torch.device(args.device))
         model.load_state_dict(loaded['model_state_dict'])
-        run.watch(model)
-        evaluation = deep_eval(model, data_load_dict=data_loader)
+        wandb.watch(model)
+        evaluation = deep_eval(model)
         print('logging wandb table')
-        run.finish()
+        wandb.finish()
     else:
         device = 'cuda'
         data_load_dict = data_samplers(data, ava_data_reflect, batch_size=128)

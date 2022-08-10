@@ -1,0 +1,305 @@
+diff --git a/__pycache__/ava.cpython-310.pyc b/__pycache__/ava.cpython-310.pyc
+index a5a15b2..80b4f8f 100644
+Binary files a/__pycache__/ava.cpython-310.pyc and b/__pycache__/ava.cpython-310.pyc differ
+diff --git a/__pycache__/config.cpython-310.pyc b/__pycache__/config.cpython-310.pyc
+index 5f75c40..48cd0ba 100644
+Binary files a/__pycache__/config.cpython-310.pyc and b/__pycache__/config.cpython-310.pyc differ
+diff --git a/__pycache__/download.cpython-310.pyc b/__pycache__/download.cpython-310.pyc
+index 16c5c38..99a52f7 100644
+Binary files a/__pycache__/download.cpython-310.pyc and b/__pycache__/download.cpython-310.pyc differ
+diff --git a/ava.py b/ava.py
+index 01818c7..3edc219 100644
+--- a/ava.py
++++ b/ava.py
+@@ -1,4 +1,6 @@
+ from __future__ import print_function
++from typing import Callable
++from config import args
+ import json
+ import cv2
+ import glob
+@@ -60,9 +62,9 @@ def scalar_resize(fid, scalar=None):
+ 
+ def get_df():
+     df = pd.read_csv('image_utils/ava_meta_with_int_id_230721.csv')
+-    print(df)
+     plt.hist(df['MLS'].values.ravel(), bins=10)
+-    plt.show()
++    if args.plot:
++        plt.show()
+     return df
+ 
+ 
+@@ -168,8 +170,9 @@ def class_wts(df):
+     y = np.bincount(y_gt_)
+     x = np.unique(y_gt_)
+     print(len(y), len(x))
+-    plt.bar(x, y)
+-    plt.show()
++    if args.plot:
++        plt.bar(x, y)
++        plt.show()
+     class_weights = class_weight.compute_class_weight(
+         'balanced', classes=x, y=y_gt_)
+     class_weights = torch.tensor(class_weights, dtype=torch.float)
+@@ -214,6 +217,7 @@ def image_plot(image_dict, eval_list=None, super_title=None, n_images=None, eval
+             ax.imshow(img)
+         fig.suptitle(super_title, fontsize=24)
+         fig.savefig(super_title+'.png')
++
+         plt.show()
+     else:
+ 
+@@ -284,7 +288,7 @@ def data_transforms(size=None):
+                 std=(0.229, 0.224, 0.225),
+                 max_pixel_value=255.0, p=1.0),
+             #A.augmentations.transforms.MedianBlur(blur_limit=7, always_apply=False, p=0.5)
+-            A.augmentations.transforms.CoarseDropout(max_holes=10,
++            A.augmentations.dropout.CoarseDropout(max_holes=10,
+                                                      max_height=72,
+                                                      max_width=72,
+                                                      min_holes=3,
+@@ -303,7 +307,7 @@ def data_transforms(size=None):
+                                                    hue=0.05,
+                                                    always_apply=False,
+                                                    p=0.1),
+-            A.augmentations.transforms.Cutout(
++            A.augmentations.dropout.Cutout(
+                 num_holes=8,
+                 max_h_size=36,
+                 max_w_size=36,
+@@ -421,12 +425,12 @@ def plot_transform(data_dict):
+     plt.savefig('transfroms.png', dpi=300)
+ 
+ 
+-def data_samplers(data, data_class, batch_size=None):
++def data_samplers(reflect_transforms:dict,data:dict,ava_data_reflect:object, batch_size=None):
+     '''retrurns data loaders called during training'''
+     test_ids = [idx for idx in data['training']][:20]
+-    # a small subset for debugging if needed <^_^>
+-    data_tester = {key: data['training'][key] for key in test_ids}
+-    #change back
++    # a small subset for debugging if needed <^_^> 
++    data_tester = {key:data['training'][key] for key in test_ids}
++    print(f' {"*"*30}ids = {test_ids} data = {data_tester}')
+ 
+     train_data_loader = ava_data_reflect(
+         data['training'], transform=reflect_transforms['training']
+@@ -437,11 +441,6 @@ def data_samplers(data, data_class, batch_size=None):
+     test_data_loader = ava_data_reflect(
+         data['test'], transform=reflect_transforms['test']
+     )
+-    data_load_dict = {
+-        'training': train_data_loader,
+-        'validation': val_data_loader,
+-        'test': test_data_loader
+-    }
+     #Let there be 9 samples and 1 sample in class 0 and 1 respectively
+     labels = [data['training'][idx]['threshold'] for idx in data['training']]
+     class_counts = np.bincount(labels)
+diff --git a/cam.py b/cam.py
+index b47c88c..22e9d73 100755
+--- a/cam.py
++++ b/cam.py
+@@ -6,13 +6,14 @@ IMG_W = 64
+ IMG_H = 64
+ 
+ FFMPEG_BIN = "/usr/bin/ffmpeg"
+-ffmpeg_cmd = ['sudo', FFMPEG_BIN,'-i', '/dev/video0','-r', '10','-pix_fmt', 'bgr24','-vcodec', 'rawvideo','-an','-sn','-f', 'image2pipe', '-']    
+-pipe = sp.Popen(ffmpeg_cmd, stdout = sp.PIPE, bufsize=1)
++ffmpeg_cmd = ['sudo', FFMPEG_BIN, '-i', '/dev/video0', '-r', '10', '-pix_fmt',
++              'bgr24', '-vcodec', 'rawvideo', '-an', '-sn', '-f', 'image2pipe', '-']
++pipe = sp.Popen(ffmpeg_cmd, stdout=sp.PIPE, bufsize=1)
+ while True:
+     time.sleep(1)
+     raw_image = pipe.stdout.read(IMG_W*IMG_H*3)
+-    image =  numpy.frombuffer(raw_image, dtype='uint8')
+-    image = image.reshape((IMG_H,IMG_W,3))
++    image = numpy.frombuffer(raw_image, dtype='uint8')
++    image = image.reshape((IMG_H, IMG_W, 3))
+     print(image)
+     cv2.imwrite('vid.jpg', image)
+     if cv2.waitKey(1) & 0xFF == ord('q'):
+diff --git a/config.py b/config.py
+index 1e234d6..c59f3da 100644
+--- a/config.py
++++ b/config.py
+@@ -1,4 +1,5 @@
+ import argparse
++from pathlib import Path
+ 
+ parser = argparse.ArgumentParser(
+     description='Training Binary Classifiers on AVA dataset for Edge computing/mobile device deployment')
+@@ -11,7 +12,7 @@ parser.add_argument('--timm_model', default='mobile_vit_xxs',
+ parser.add_argument('--n_workers', default='cpu', type=str, help='inference ')
+ parser.add_argument('--pin_memory', default=True, type=bool,
+                     help='Handling of device memory pin == faster')
+-parser.add_argument('--inference', default=None, type=bool,
++parser.add_argument('--inference', action='store_true',
+                     help='set computer brain state to infer or to train')
+ parser.add_argument('--device', default='cpu', type=str,
+                     help='chose your device flavour this could ')
+@@ -19,9 +20,19 @@ parser.add_argument('--model_location', default='models/mobilevit_xxs', type=str
+                     help='location relative to project directory where model is stored')
+ parser.add_argument('--download_from', default='', type=str,
+                     help='location relative to project directory where model is stored')
+-parser.add_argument('--get_dataset', default=True, type=bool,
++parser.add_argument('--dataset', default=True, type=bool,
+                     help='to get dataset or not to get dataset')
+ parser.add_argument('--download', default=False,
+                     help='whether or not to download data for trining or for inference')
++parser.add_argument('--plot', action='store_true',
++                    help='whether or not to download data for trining or for inference')
++parser.add_argument('--entity', type=str, default=None,
++                    help='wandb entity (userename or team)')
++parser.add_argument('--project', type=str, default=None,
++                    help='project where runs saved')
++parser.add_argument('--tags', type=str, default=None,
++                    help='run tags')
+ 
++parser.add_argument('-d', type=Path, default='wandb/wandb/settings')
+ args = parser.parse_args()
++print(args.d)
+diff --git a/main.py b/main.py
+index 780031f..a8c3634 100644
+--- a/main.py
++++ b/main.py
+@@ -2,6 +2,7 @@ from ast import arg
+ import wandb
+ import torch
+ import timm
++import gc 
+ import platform
+ 
+ from config import args
+@@ -14,8 +15,9 @@ else:
+ 
+ 
+ if __name__ == '__main__':
+-    wandb.login()
+-    if args.get_dataset:
++    
++    if args.download:
++        assert args.dataset in ['ava']
+         get_data = get_dataset(
+             fid='crushed.zip', url='http://desigley.space/ava/crushed.zip')
+         get_data.get_zip()
+@@ -24,20 +26,38 @@ if __name__ == '__main__':
+     df, y_g_dict, data, neg, pos = get_all(subset=True)
+     reflect_transforms = data_transforms(size=224)
+     data_load_dict = data_samplers(
+-        data, ava_data_reflect, batch_size=args.batch_size)
++        data=data, 
++        reflect_transforms=reflect_transforms,
++        ava_data_reflect=ava_data_reflect,
++        batch_size=args.batch_size)
+     if args.inference:
++        wandb.login()
++        print(f'running in inference mode{"8"*30}')
+         wb_tags = ['inference', platform.system(), platform.system(),
+                    platform.release()]
+-        wandb.init(entity='iaqa', project='small_is_beautiful', tags=wb_tags)
++        if  args.entity and args.project and args.tags:
++            run = wandb.init(entity=args.entity, project=args.project, tags=args.tags)
++        elif args.entity and args.project:
++            run = wandb.init(entity=args.entity, project=args.project)
++        elif args.d.exists():
++            with args.d.open('r') as hndl:
++                for default in hndl.readlines():
++                    default = default.split('=')
++                    if len(default)==2:
++                        arg_,param = default
++                        arg_= arg_.strip('\n').strip(' ')
++                        param = param.strip('\n').strip(' ')
++                        args.arg_=param
++            run = wandb.init(entity=args.entity, project=args.project)        
+         model = timm.create_model('mobilevit_xxs')
+         model.head.fc.out_features = 2
+         loaded = torch.load('models/mobilevit_xxs',
+                             map_location=torch.device(args.device))
+         model.load_state_dict(loaded['model_state_dict'])
+-        wandb.watch(model)
++        run.watch(model)
+         evaluation = deep_eval(model)
+         print('logging wandb table')
+-        wandb.finish()
++        run.finish()
+     else:
+         device = 'cuda'
+         data_load_dict = data_samplers(data, ava_data_reflect, batch_size=128)
+diff --git a/requirments.txt b/requirments.txt
+index abbca08..c02ef42 100644
+--- a/requirments.txt
++++ b/requirments.txt
+@@ -1,43 +1,21 @@
+-certifi==2022.6.15
+-charset-normalizer==2.1.0
+-click==8.1.3
+-docker-pycreds==0.4.0
+-gitdb==4.0.9
+-GitPython==3.1.27
+-idna==3.3
+-numpy==1.23.1
+-opencv-python==4.6.0.66
+-pandas==1.4.3
+-pathtools==0.1.2
+-promise==2.3
+-protobuf==3.20.1
+-psutil==5.9.1
+-python-dateutil==2.8.2
+-pytz==2022.1
+-PyYAML==6.0
+-requests==2.28.1
+-sentry-sdk==1.6.0
+-setproctitle==1.2.3
+-shortuuid==1.0.9
+-six==1.16.0
+-smmap==5.0.0
+-torch==1.12.0
+-typing_extensions==4.3.0
+-urllib3==1.26.10
+-wandb==0.12.21
+ albumentations==1.2.0
++beautifulsoup4==4.11.1
+ certifi==2022.6.15
+ charset-normalizer==2.1.0
+ click==8.1.3
+ cycler==0.11.0
+ docker-pycreds==0.4.0
++einops==0.4.1
++filelock==3.7.1
+ fonttools==4.34.4
++gdown==4.5.1
+ gitdb==4.0.9
+ GitPython==3.1.27
+ idna==3.3
+ imageio==2.19.3
+ joblib==1.1.0
+ kiwisolver==1.4.3
++linformer==0.2.1
+ matplotlib==3.5.2
+ networkx==2.8.4
+ numpy==1.23.1
+@@ -51,6 +29,7 @@ promise==2.3
+ protobuf==3.20.1
+ psutil==5.9.1
+ pyparsing==3.0.9
++PySocks==1.7.1
+ python-dateutil==2.8.2
+ pytz==2022.1
+ PyWavelets==1.3.0
+@@ -65,11 +44,14 @@ setproctitle==1.2.3
+ shortuuid==1.0.9
+ six==1.16.0
+ smmap==5.0.0
++soupsieve==2.3.2.post1
+ threadpoolctl==3.1.0
+ tifffile==2022.5.4
+ timm==0.6.5
+ torch==1.12.0
+ torchvision==0.13.0
++tqdm==4.64.0
+ typing_extensions==4.3.0
+ urllib3==1.26.10
++vit-pytorch==0.35.7
+ wandb==0.12.21

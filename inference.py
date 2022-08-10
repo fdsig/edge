@@ -410,9 +410,13 @@ class ava_data_reflect(Dataset):
         return img_transformed, label, self.im_dict[self.files[idx]]['fid']
 
 
-def deep_eval(model, model_name=None):
+def deep_eval(model,data_load_dict:dict, model_name=None):
     '''validatioan loop ruturns metrics dict for passed model'''
     criterion = nn.CrossEntropyLoss()
+    if torch.cuda.is_available():
+        device  = 'cuda'
+    else:
+        device = 'cpu'
     model.to(device)
     batches_dict = {}
     results_dict = {}

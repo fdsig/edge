@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     df, y_g_dict, data, neg, pos = get_all(subset=True)
     reflect_transforms = data_transforms(size=224)
-    data_loader = data_samplers(
+    data_load_dict = data_samplers(
         data=data, 
         reflect_transforms=reflect_transforms,
         ava_data_reflect=ava_data_reflect,
@@ -55,7 +55,7 @@ if __name__ == '__main__':
                             map_location=torch.device(args.device))
         model.load_state_dict(loaded['model_state_dict'])
         run.watch(model)
-        evaluation = deep_eval(model, data_load_dict=data_loader)
+        evaluation = deep_eval(model)
         print('logging wandb table')
         run.finish()
     else:
