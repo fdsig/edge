@@ -1,4 +1,11 @@
-wandb 
+# ingnore wnadb dir and notbook stuff
+
+data
+Untitled.ipynb
+*.ipynb
+wandb
+.ipynb_checkpoints
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
