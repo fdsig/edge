@@ -1,5 +1,0 @@
-[default]
-entity = tinyml-hackathon
-project = bench_mark
-base_url = https://api.wandb.ai
-

@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/fridadesigley/edge/main.py", line 58, in <module>
-    evaluation = deep_eval(model)
-  File "/Users/fridadesigley/edge/inference.py", line 416, in deep_eval
-    model.to(device)
-NameError: name 'device' is not defined
