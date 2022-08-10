@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/fridadesigley/edge_root/edge/main.py", line 67, in <module>
-    data_load_dict = data_samplers(data,ava_data_reflect,batch_size=128)
-  File "/Users/fridadesigley/edge_root/edge/ava.py", line 436, in data_samplers
-    data['training'], transform=reflect_transforms['training']
-NameError: name 'reflect_transforms' is not defined

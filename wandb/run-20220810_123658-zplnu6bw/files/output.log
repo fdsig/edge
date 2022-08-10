@@ -1,9 +1,0 @@
-
-0
-  0%|                                                 | 0/19899 [00:00<?, ?it/s]
-Traceback (most recent call last):
-  File "/Users/fridadesigley/edge_root/edge/main.py", line 66, in <module>
-    evaluation = deep_eval(model, data_load_dict=data_loader)
-  File "/Users/fridadesigley/edge_root/edge/inference.py", line 438, in deep_eval
-    label = label.to(device)
-AttributeError: 'int' object has no attribute 'to'
