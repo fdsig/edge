@@ -32,6 +32,8 @@ parser.add_argument('--project', type=str, default=None,
                     help='project where runs saved')
 parser.add_argument('--tags', type=str, default=None,
                     help='run tags')
+parser.add_argument('--unzip_only', action='store_true',
+                    help='unzip_file')
 
 parser.add_argument('-d', type=Path, default='wandb/wandb/settings')
 args = parser.parse_args()

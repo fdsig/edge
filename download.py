@@ -44,7 +44,8 @@ class get_dataset:
         '''checks if images dir exists
         makes if not, then infaltes/decompreses to directory'''
         out, fid = Path(out_dir), Path(self.fid)
+        print(fid)
         if not out.is_dir():
             out.mkdir()
-        with zipfile.ZipExtFile(out, 'r') as hndl:
+        with zipfile.ZipFile(fid, 'r') as hndl:
             hndl.extractall(out)

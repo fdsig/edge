@@ -1,0 +1,145 @@
+diff --git a/__pycache__/ava.cpython-310.pyc b/__pycache__/ava.cpython-310.pyc
+index 7a5be4e..b1fe065 100644
+Binary files a/__pycache__/ava.cpython-310.pyc and b/__pycache__/ava.cpython-310.pyc differ
+diff --git a/__pycache__/config.cpython-310.pyc b/__pycache__/config.cpython-310.pyc
+index 48cd0ba..65f3b24 100644
+Binary files a/__pycache__/config.cpython-310.pyc and b/__pycache__/config.cpython-310.pyc differ
+diff --git a/__pycache__/download.cpython-310.pyc b/__pycache__/download.cpython-310.pyc
+index 99a52f7..d356cdc 100644
+Binary files a/__pycache__/download.cpython-310.pyc and b/__pycache__/download.cpython-310.pyc differ
+diff --git a/__pycache__/inference.cpython-310.pyc b/__pycache__/inference.cpython-310.pyc
+index 8f47273..e6e65f4 100644
+Binary files a/__pycache__/inference.cpython-310.pyc and b/__pycache__/inference.cpython-310.pyc differ
+diff --git a/ava.py b/ava.py
+index 43f5d3e..c5d3cd8 100644
+--- a/ava.py
++++ b/ava.py
+@@ -131,7 +131,7 @@ def make_class_dir(df, y_g_dict):
+           ⌊_class 0
+           ⌊_class 1'''
+ 
+-    os.makedirs('data/', exist_ok=True)
++    os.makedirs('../data/', exist_ok=True)
+     train_dir = '../data/train/'
+     test_dir = '../data/test/'
+     #!rm -rf data/train/ && rm -rf data/test/
+@@ -146,14 +146,14 @@ def make_class_dir(df, y_g_dict):
+         y_g_dict[key]['fid'] = '../data/test/'+im_id
+         try:
+ 
+-            os.symlink('../images/'+im_id, 'data/test/'+im_id)
++            os.symlink('../images/'+im_id, '../data/test/'+im_id)
+         except:
+             not_loaded.append(im_id)
+     train_df = df[df['set'].isin(['training', 'validation'])]
+     train_set = train_df['image_name'].values
+     for im_id in tqdm(train_set, colour=('#FF69B4')):
+         key = im_id.strip('.jpg')
+-        y_g_dict[key]['fid'] = '../data/train/'+im_id
++        y_g_dict[key]['fid'] = '../images/'+im_id
+         try:
+ 
+             os.symlink('../images/'+im_id, '../data/train/'+im_id)
+@@ -681,7 +681,7 @@ def loader(models):
+         yield model, models[mod]['epochs'], mod
+ 
+ 
+-def deep_eval(model):
++def deep_eval(model,data_load_dict):
+     '''validatioan loop ruturns metrics dict for passed model'''
+     criterion = nn.CrossEntropyLoss()
+     if torch.cuda.is_available():
+diff --git a/config.py b/config.py
+index c59f3da..39f36a5 100644
+--- a/config.py
++++ b/config.py
+@@ -32,6 +32,8 @@ parser.add_argument('--project', type=str, default=None,
+                     help='project where runs saved')
+ parser.add_argument('--tags', type=str, default=None,
+                     help='run tags')
++parser.add_argument('--unzip_only', action='store_true',
++                    help='unzip_file')
+ 
+ parser.add_argument('-d', type=Path, default='wandb/wandb/settings')
+ args = parser.parse_args()
+diff --git a/download.py b/download.py
+index e7f4100..9da8fd6 100644
+--- a/download.py
++++ b/download.py
+@@ -44,7 +44,8 @@ class get_dataset:
+         '''checks if images dir exists
+         makes if not, then infaltes/decompreses to directory'''
+         out, fid = Path(out_dir), Path(self.fid)
++        print(fid)
+         if not out.is_dir():
+             out.mkdir()
+-        with zipfile.ZipExtFile(out, 'r') as hndl:
++        with zipfile.ZipFile(fid, 'r') as hndl:
+             hndl.extractall(out)
+diff --git a/inference.py b/inference.py
+index a9d6e32..c79046c 100644
+--- a/inference.py
++++ b/inference.py
+@@ -432,10 +432,9 @@ def deep_eval(model,data_load_dict:dict, model_name=None):
+         model.eval()
+         for data, label, fid in tqdm(data_load_dict['test']):
+             data = data.to(device)
+-            for img in data:
+-              images.append(wandb.Image(img))
+-            for lab in label:
+-              labels = np.append(labels, [lab])
++            images.append(wandb.Image(data))
++            print(label)
++            labels = np.append(labels, [label])
+             label = label.to(device)
+             t = time()
+             output = model(data)
+diff --git a/main.py b/main.py
+index 050e64d..dea2d60 100644
+--- a/main.py
++++ b/main.py
+@@ -6,10 +6,11 @@ import gc
+ import platform
+ 
+ from config import args
+-from ava import get_all, data_samplers, data_transforms, ava_data_reflect
++from ava import get_all, data_samplers, data_transforms, ava_data_reflect, deep_eval
+ from download import get_dataset
+ if args.inference:
+-    from inference import deep_eval
++    print('evealuating model')
++    #from inference import deep_eval
+ else:
+     import ava
+ 
+@@ -22,6 +23,11 @@ if __name__ == '__main__':
+             fid='crushed.zip', url='http://desigley.space/ava/crushed.zip')
+         get_data.get_zip()
+         get_data.unzip(out_dir='images')
++    elif args.unzip_only:
++        get_data = get_dataset(
++            fid='../crushed.zip', url=None)
++        get_data.unzip(out_dir='../images')
++    
+ 
+     df, y_g_dict, data, neg, pos = get_all(subset=True)
+     reflect_transforms = data_transforms(size=224)
+@@ -31,6 +37,7 @@ if __name__ == '__main__':
+         ava_data_reflect=ava_data_reflect,
+         batch_size=args.batch_size)
+     if args.inference:
++
+         wandb.login()
+         print(f'running in inference mode{"8"*30}')
+         wb_tags = ['inference', platform.system(), platform.system(),
+@@ -48,7 +55,9 @@ if __name__ == '__main__':
+                         arg_= arg_.strip('\n').strip(' ')
+                         param = param.strip('\n').strip(' ')
+                         args.arg_=param
+-            run = wandb.init(entity=args.entity, project=args.project)        
++            run = wandb.init(entity=args.entity, project=args.project)
++        else:
++            run = wandb.init()      
+         model = timm.create_model('mobilevit_xxs')
+         model.head.fc.out_features = 2
+         loaded = torch.load('models/mobilevit_xxs',

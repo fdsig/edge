@@ -131,7 +131,7 @@ def make_class_dir(df, y_g_dict):
           ⌊_class 0
           ⌊_class 1'''
 
-    os.makedirs('data/', exist_ok=True)
+    os.makedirs('../data/', exist_ok=True)
     train_dir = '../data/train/'
     test_dir = '../data/test/'
     #!rm -rf data/train/ && rm -rf data/test/
@@ -146,14 +146,14 @@ def make_class_dir(df, y_g_dict):
         y_g_dict[key]['fid'] = '../data/test/'+im_id
         try:
 
-            os.symlink('../images/'+im_id, 'data/test/'+im_id)
+            os.symlink('../images/'+im_id, '../data/test/'+im_id)
         except:
             not_loaded.append(im_id)
     train_df = df[df['set'].isin(['training', 'validation'])]
     train_set = train_df['image_name'].values
     for im_id in tqdm(train_set, colour=('#FF69B4')):
         key = im_id.strip('.jpg')
-        y_g_dict[key]['fid'] = '../data/train/'+im_id
+        y_g_dict[key]['fid'] = '../images/'+im_id
         try:
 
             os.symlink('../images/'+im_id, '../data/train/'+im_id)
@@ -425,56 +425,55 @@ def plot_transform(data_dict):
     plt.savefig('transfroms.png', dpi=300)
 
 
-def data_samplers(reflect_transforms:dict,data:dict,ava_data_reflect:object, batch_size=None):
+def data_samplers(data, ava_data_reflect,reflect_transforms,batch_size=None):
     '''retrurns data loaders called during training'''
     test_ids = [idx for idx in data['training']][:20]
     # a small subset for debugging if needed <^_^> 
     data_tester = {key:data['training'][key] for key in test_ids}
-   
-    print(f' {"*"*30}ids = {test_ids} data = {data_tester}')
+    #change back
 
-    train_data_loader = ava_data_reflect(
+    train_data_loader =  ava_data_reflect(
         data['training'], transform=reflect_transforms['training']
-    )
-    val_data_loader = ava_data_reflect(
+        )
+    val_data_loader =  ava_data_reflect(
         data['validation'], transform=reflect_transforms['validation']
-    )
-    test_data_loader = ava_data_reflect(
+        )
+    test_data_loader =  ava_data_reflect(
         data['test'], transform=reflect_transforms['test']
-    )
+        )
     #Let there be 9 samples and 1 sample in class 0 and 1 respectively
     labels = [data['training'][idx]['threshold'] for idx in data['training']]
     class_counts = np.bincount(labels)
     num_samples = sum(class_counts)
     #corresponding labels of samples
-    class_weights = [num_samples/class_counts[i]
-                     for i in range(len(class_counts))]
+    class_weights = [num_samples/class_counts[i] for i in range(len(class_counts))]
     weights = [class_weights[labels[i]] for i in range(int(num_samples))]
     sampler = torch.utils.data.WeightedRandomSampler(
         torch.DoubleTensor(weights), int(num_samples)
-    )
+        )
     print(len(weights))
     print(class_weights)
     sampler = torch.utils.data.WeightedRandomSampler(
         torch.DoubleTensor(weights), int(len(data['training'].keys()))
-    )
+        )
     # with data sampler (note ->> must be same len[-,...,-] as train set!!)
     train_loader = DataLoader(
-        dataset=train_data_loader,
-        sampler=sampler,
-        batch_size=batch_size,
-        shuffle=False, num_workers=4, pin_memory=True
-    )
-
-    val_loader = DataLoader(
-        dataset=val_data_loader,
+        dataset = train_data_loader, 
+        sampler=sampler, 
         batch_size=batch_size,
         shuffle=False
-    )
+        )
+
+    val_loader = DataLoader(
+        dataset = val_data_loader, 
+        batch_size=batch_size, 
+        shuffle=False
+        )
     test_loader = DataLoader(
-        dataset=test_data_loader,
-        batch_size=batch_size, shuffle=True)
-    return {'training': train_loader, 'validation': val_loader, 'test': test_loader}
+        dataset = test_data_loader,
+         batch_size=batch_size, shuffle=False)
+    return {'training':train_loader,'validation':val_loader, 'test': test_loader}
+
 
 
 def seed_everything(seed):
@@ -681,7 +680,7 @@ def loader(models):
         yield model, models[mod]['epochs'], mod
 
 
-def deep_eval(model):
+def deep_eval(model,data_load_dict):
     '''validatioan loop ruturns metrics dict for passed model'''
     criterion = nn.CrossEntropyLoss()
     if torch.cuda.is_available():
