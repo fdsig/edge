@@ -1,17 +1,15 @@
 from __future__ import print_function
-from typing import Callable
 from config import args
 import json
 import cv2
-import glob
 from itertools import chain
 import os
 import pandas as pd
 import random
 # file handling
-import zipfile
-import shutil
+
 from pathlib import Path
+from config import args
 
 import albumentations as A
 import matplotlib.pyplot as plt
@@ -42,7 +40,6 @@ from timm.optim import create_optimizer
 from albumentations import pytorch
 from pathlib import Path
 import torchvision
-import gc
 from pathlib import Path
 
 from sklearn import metrics
@@ -98,7 +95,7 @@ def one_hot(df):
 
 
 def sort_show():
-    ava = [i.path for i in os.scandir('../images/')]
+    ava = [i.path for i in os.scandir(args.data_dir)]
     ava.sort()
     def read(fid): return cv2.cvtColor(cv2.imread(fid),
                                        cv2.COLOR_BGR2RGB)
@@ -112,7 +109,7 @@ def get_labels(df):
     y_df = one_hot(df)
     labels = (
         fid.name.split('.')[0]
-        for path in os.scandir('../images/')
+        for path in os.scandir(args.data_dir)
         for fid in os.scandir(path.path))
     y_g = y_df.to_dict('index')
     return {str(y_g[pair_key]['ID_y']): y_g[pair_key] for pair_key in y_g}
@@ -139,24 +136,23 @@ def make_class_dir(df, y_g_dict):
     os.makedirs(test_dir, exist_ok=True)
     not_loaded_train, not_loaded = [], []
     test_df = df[df['set'] == 'test']
-    files_ = [i.name for i in os.scandir('../images/')]
+    files_ = [i.name for i in os.scandir(args.data_dir)]
     test_set = test_df['image_name'].values
     for im_id in tqdm(test_set, colour=('#FF69B4')):
         key = im_id.strip('.jpg')
-        y_g_dict[key]['fid'] = '../data/test/'+im_id
+        y_g_dict[key]['fid'] = f'{args.out_dir}/test/{im_id}'
         try:
 
-            os.symlink('../images/'+im_id, '../data/test/'+im_id)
+            os.symlink(args.data_dir+im_id, f'{args.out_dir}/test/{im_id}')
         except:
             not_loaded.append(im_id)
     train_df = df[df['set'].isin(['training', 'validation'])]
     train_set = train_df['image_name'].values
     for im_id in tqdm(train_set, colour=('#FF69B4')):
         key = im_id.strip('.jpg')
-        y_g_dict[key]['fid'] = '../images/'+im_id
+        y_g_dict[key]['fid'] = args.data_dir+im_id
         try:
-
-            os.symlink('../images/'+im_id, '../data/train/'+im_id)
+            os.symlink(args.data_dir+im_id, f'{args.out_dir}train/{im_id}')
         except:
             not_loaded_train.append(im_id)
 
