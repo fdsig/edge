@@ -1,6 +1,7 @@
 # ingnore wnadb dir and notbook stuff
 
 data
+images 
 Untitled.ipynb
 *.ipynb
 wandb
