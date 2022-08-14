@@ -83,6 +83,12 @@ Set up and clone, using ssd M2
 - [ ]
 - [ ] 
 
+#Flashing system/setting up for first use (Nvidia SDK Manager and Auvidea Carrier board)
+
+Auvidea carried board with Jeston (nano, tx xn) can be found [here](https://www.google.com/url?q=https://auvidea.eu/download/QuickStart.pdf&sa=U&ved=2ahUKEwjVi_b21Mb5AhWJhP0HHWYxBhEQFnoECAoQAg&usg=AOvVaw3gJ2ZtS91IDzuISZQC_bm8)
+ and gives instructions about how to flash device when in forced recovery mode.
+
+
 
 # Camera Streaming
 
