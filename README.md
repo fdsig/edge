@@ -1,9 +1,29 @@
-A respository for of examples of deploying models (classifictiaon, object detection and semantic segmentation) On device training and on Raspberry Pi 4, Nvidia Jetson, 
+A respository for of examples of deploying models (classifictiaon, object detection and semantic segmentation) On device training Nvidia Jetson, Khadas Vim3, Raspberry Pi 4. 
+
+All configuration is for headless linux and a general philosophy of keeping as close to production OS as possible and to keep versions the same across different devices.
+
+Here therefore we use headless Unbuntu 18.04 LTS and Ubuntu 20.04 LTS. Nvidia hardware requires flashing from Ubuntu host machine only. 
+
+all have been set up to be accessed over ssh as host on a local/private network. 
+
+using:
+
+```bash
+sudo apt-get install openssh-server
+sudo systemctl status ssh
+sudo systemctl enable --now ssh
+sudo ufw allow ssh
+```
+
+This enable accesing device remotely over ssh in terminal. 
 
 
 # WandB Tracking, Versioning, Deployment and Monitoring:
 
 [here](https://wandb.ai/tinyml-hackathon)
+
+
+
 
 # For setting up pi 4s:
 
