@@ -25,7 +25,7 @@ sudo apt-get -y install autoconf bc build-essential g++-8 gcc-8 clang-8 lld-8 ge
 
 ```
 
-some additional install are required before install pytorch in python3.
+some additional installs are required before install pytorch in python3.
 
 ```
 sudo apt-get install libopenblas-base libopenmpi-dev 
