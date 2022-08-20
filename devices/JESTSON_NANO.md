@@ -32,7 +32,7 @@ sudo apt-get install libopenblas-base libopenmpi-dev
 ```
 
 
-the Nvidia developer forums are and invaluable sources of troubleshooting for example [here](https://forums.developer.nvidia.com/t/cannot-install-pytorch/149226/5?u=fdesigley) are additional commands required for running Pytroch on Jetson nano.
+the Nvidia developer forums are an invaluable sources of troubleshooting for example [here](https://forums.developer.nvidia.com/t/cannot-install-pytorch/149226/5?u=fdesigley) are additional commands required for running Pytroch on Jetson nano.
 
 If all of the above has been done correctly
 
