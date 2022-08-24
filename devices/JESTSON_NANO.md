@@ -42,3 +42,11 @@ simply running python3 and import Pytorch should yield true:
 import torch
 torch.cuda.is_available()
 ```
+To do:
+
+- [] Back compatible Inference scrip to python 3.6.9
+- [] Torch vision install main python from wheel on Jetson
+- [] ta to device 
+
+
+
