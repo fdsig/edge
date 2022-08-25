@@ -99,9 +99,9 @@ cd Images && unzip crushed.zip
 
 Set up and clone, using ssd M2 
 
-- [ ] benchmark 
-- [ ]
-- [ ] 
+- [ ] benchmark cpu
+- [ ] port models to onnx
+- [ ] change boot partition to ssd
 
 #Flashing system/setting up for first use (Nvidia SDK Manager and Auvidea Carrier board)
 
