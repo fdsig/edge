@@ -130,6 +130,7 @@ To do
 - [ ] stream from camera to jetson
 - [ ] deploy in the wild
 - [ ] transfer learning on manually labeled dataset
+- [ ] train weather classifier from images. 
 
 
 ## of wider interset:
