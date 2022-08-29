@@ -1,7 +1,7 @@
 from ast import arg
 import wandb
 import torch
-import timm
+import torchvision
 import gc 
 import platform
 
@@ -59,9 +59,9 @@ if __name__ == '__main__':
             run = wandb.init(entity=args.entity, project=args.project)
         else:
             run = wandb.init()      
-        model = timm.create_model('mobilevit_xxs')
+        model = torchvision.models.resnet18(pretrained=True)
         model.head.fc.out_features = 2
-        loaded = torch.load('models/mobilevit_xxs',
+        loaded = torch.load('models/resnet_18',
                             map_location=torch.device(args.device))
         model.load_state_dict(loaded['model_state_dict'])
         run.watch(model)
