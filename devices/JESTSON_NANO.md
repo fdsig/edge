@@ -34,6 +34,10 @@ sudo apt-get install libopenblas-base libopenmpi-dev
 
 the Nvidia developer forums are an invaluable sources of troubleshooting for example [here](https://forums.developer.nvidia.com/t/cannot-install-pytorch/149226/5?u=fdesigley) are additional commands required for running Pytroch on Jetson nano.
 
+moving to boot partitions using .sh script to ssd rather than device mmc.
+
+
+
 If all of the above has been done correctly
 
 simply running python3 and import Pytorch should yield true:
