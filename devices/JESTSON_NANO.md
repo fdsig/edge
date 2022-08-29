@@ -57,10 +57,23 @@ simply running python3 and import Pytorch should yield true:
 import torch
 torch.cuda.is_available()
 ```
+
+installing tochvision can be done using:
+
+```
+git clone --branch v0.11.1 https://github.com/pytorch/vision torchvision
+cd torchvision/
+export BUILD_VERSION=0.11.1
+python3 setup.py install --user
+```
+
+⚠️ This will take about 15 minuits and the termanl ouputs verbose logs this is not a bug. 
+
+
 To do:
 
 - [ ] Back compatible Inference scrip to python 3.6.9
-- [ ] Torch vision install main python from wheel on Jetson
+- [x] Torchvision install main python from wheel on Jetson
 - [ ] code to device 
 
 
