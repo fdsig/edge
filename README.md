@@ -101,7 +101,10 @@ Set up and clone, using ssd M2
 
 - [ ] benchmark cpu
 - [ ] port models to onnx
-- [ ] change boot partition to ssd
+- [x] change boot partition to ssd
+- [ ] update inference.py to torchvision (albumentations not needed for inference)
+- [ ] comment code file reading section fo main.py
+- [ ] downgrade to python 3.6 
 
 #Flashing system/setting up for first use (Nvidia SDK Manager and Auvidea Carrier board)
 
