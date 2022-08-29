@@ -32,6 +32,17 @@ sudo apt-get install libopenblas-base libopenmpi-dev
 ```
 
 
+installing pytorch from wheel:
+
+
+```
+wget https://nvidia.box.com/shared/static/fjtbno0vpo676a25cgvuqc1wty0fkkg6.whl -O torch-1.10.0-cp36-cp36m-linux_aarch64.whl
+sudo apt-get install python3-pip libopenblas-base libopenmpi-dev libomp-dev
+pip3 install Cython
+pip3 install numpy torch-1.10.0-cp36-cp36m-linux_aarch64.whl
+```
+
+
 the Nvidia developer forums are an invaluable sources of troubleshooting for example [here](https://forums.developer.nvidia.com/t/cannot-install-pytorch/149226/5?u=fdesigley) are additional commands required for running Pytroch on Jetson nano.
 
 moving to boot partitions using .sh script to ssd rather than device mmc.
@@ -50,7 +61,7 @@ To do:
 
 - [ ] Back compatible Inference scrip to python 3.6.9
 - [ ] Torch vision install main python from wheel on Jetson
-- [ ] ta to device 
+- [ ] code to device 
 
 
 
