@@ -1,18 +1,18 @@
 from __future__ import print_function
 from re import sub
+from config import args
 import cv2
 import os
 import pandas as pd
 # file handling
-from pathlib import Path
 from time import time
+
 
 
 import numpy as np
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 from torch.utils.data import DataLoader, Dataset
@@ -22,7 +22,6 @@ from sklearn.utils import class_weight
 
 import random
 
-from pathlib import Path
 from pathlib import Path
 import wandb
 
@@ -84,9 +83,12 @@ def sort_show():
 
 def get_labels(df):
     y_df = one_hot(df)
+    path = Path(args.data_dir)
+    if not path.exists():
+        path.mkdir(parents=True)
     labels = (
         fid.name.split('.')[0]
-        for path in os.scandir('Images/')
+        for path in os.scandir(args.data_dir)
         for fid in os.scandir(path.path))
     y_g = y_df.to_dict('index')
     return {str(y_g[pair_key]['ID_y']): y_g[pair_key] for pair_key in y_g}
@@ -105,32 +107,31 @@ def make_class_dir(df, y_g_dict):
           ⌊_class 0
           ⌊_class 1'''
 
-    os.makedirs('data/', exist_ok=True)
-    train_dir = 'data/train/'
-    test_dir = 'data/test/'
+    os.makedirs('../data/', exist_ok=True)
+    train_dir = '../data/train/'
+    test_dir = '../data/test/'
     #!rm -rf data/train/ && rm -rf data/test/
     os.makedirs(train_dir, exist_ok=True)
     os.makedirs(test_dir, exist_ok=True)
     not_loaded_train, not_loaded = [], []
     test_df = df[df['set'] == 'test']
-    files_ = [i.name for i in os.scandir('Images/')]
+    files_ = [i.name for i in os.scandir(args.data_dir)]
     test_set = test_df['image_name'].values
     for im_id in tqdm(test_set, colour=('#FF69B4')):
         key = im_id.strip('.jpg')
-        y_g_dict[key]['fid'] = 'data/test/'+im_id
+        y_g_dict[key]['fid'] = f'{args.out_dir}/test/{im_id}'
         try:
 
-            os.symlink('Images/'+im_id, 'data/test/'+im_id)
+            os.symlink(args.data_dir+im_id, f'{args.out_dir}/test/{im_id}')
         except:
             not_loaded.append(im_id)
     train_df = df[df['set'].isin(['training', 'validation'])]
     train_set = train_df['image_name'].values
     for im_id in tqdm(train_set, colour=('#FF69B4')):
         key = im_id.strip('.jpg')
-        y_g_dict[key]['fid'] = 'data/train/'+im_id
+        y_g_dict[key]['fid'] = args.data_dir+im_id
         try:
-
-            os.symlink('Images/'+im_id, 'data/train/'+im_id)
+            os.symlink(args.data_dir+im_id, f'{args.out_dir}train/{im_id}')
         except:
             not_loaded_train.append(im_id)
 
@@ -178,170 +179,15 @@ def get_all(subset=None):
 
 def data_transforms(size=None):
     '''defines data transform and returns a dict with test,train,val transforms'''
-    mask1 = np.full(30 * 140, False)
-    a_train_transform = A.Compose(
-        [
-            A.augmentations.transforms.GridDistortion(
-                num_steps=5,
-                distort_limit=0.6,
-                interpolation=1,
-                border_mode=4,
-                value=4,
-                mask_value=2,
-                always_apply=False,
-                p=0.1),
-            A.augmentations.geometric.resize.LongestMaxSize(
-                max_size=size
-            ),
-            A.augmentations.transforms.PadIfNeeded(size, size),
-            A.augmentations.transforms.Normalize(
-                mean=(0.485, 0.456, 0.406),
-                std=(0.229, 0.224, 0.225),
-                max_pixel_value=255.0, p=1.0),
-            #A.augmentations.transforms.MedianBlur(blur_limit=7, always_apply=False, p=0.5)
-            A.augmentations.transforms.CoarseDropout(max_holes=10,
-                                                     max_height=72,
-                                                     max_width=72,
-                                                     min_holes=3,
-                                                     min_height=36,
-                                                     min_width=36,
-                                                     fill_value=(random.uniform(0, 1),
-                                                                 random.uniform(
-                                                         0, 1),
-                                                         random.uniform(0, 1)),
-                                                     mask_fill_value=(
-                                                         0.5, 0.2, 0.4),
-                                                     always_apply=False, p=0.1),
-            A.augmentations.transforms.ColorJitter(brightness=0.05,
-                                                   contrast=0.05,
-                                                   saturation=0.05,
-                                                   hue=0.05,
-                                                   always_apply=False,
-                                                   p=0.1),
-            A.augmentations.transforms.Cutout(
-                num_holes=8,
-                max_h_size=36,
-                max_w_size=36,
-                fill_value=(
-                    random.uniform(0, 1),
-                    random.uniform(0, 1),
-                    random.uniform(0, 1)
-                ),
-                always_apply=False,
-                p=0.1
-            ),
-            A.augmentations.transforms.GaussianBlur(
-                blur_limit=(3, 5),
-                sigma_limit=0,
-                always_apply=False,
-                p=0.1
-            ),
-            A.augmentations.transforms.GaussNoise(
-                var_limit=(0.1, 0.1),
-                mean=0.1,
-                per_channel=True,
-                always_apply=False,
-                p=0.1
-            ),
-            A.augmentations.transforms.HueSaturationValue(
-                hue_shift_limit=0.1,
-                sat_shift_limit=0.1,
-                val_shift_limit=0.1,
-                always_apply=False,
-                p=0.01
-            ),
-            A.augmentations.transforms.MotionBlur(
-                blur_limit=3, p=0.2
-            ),
-            A.augmentations.geometric.rotate.SafeRotate(limit=30,
-                                                        interpolation=1,
-                                                        border_mode=4,
-                                                        value=None,
-                                                        mask_value=None,
-                                                        always_apply=False,
-                                                        p=0.1
-                                                        ),
-
-            A.pytorch.transforms.ToTensorV2(
-                transpose_mask=False, p=1.0
-            )
-        ]
-    )
-
-    a_test_transform = A.Compose([
-        A.augmentations.geometric.resize.LongestMaxSize(max_size=224),
-        A.augmentations.transforms.PadIfNeeded(224, 224),
-        #IDEALLY Replace with Computed dataset values not jsut stock imagenet
-        A.augmentations.transforms.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225),
-                                             max_pixel_value=255.0, p=1.0),
-        A.pytorch.transforms.ToTensorV2(transpose_mask=False, p=1.0)]
-    )
-
-    a_valid_transform = A.Compose([
-        A.augmentations.geometric.resize.LongestMaxSize(max_size=224),
-        A.augmentations.transforms.PadIfNeeded(224, 224),
-        #IDEALLY Replace with Computed dataset values not jsut stock imagenet
-        A.augmentations.transforms.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225),
-                                             max_pixel_value=255.0, p=1.0),
-        A.pytorch.transforms.ToTensorV2(transpose_mask=False, p=1.0)]
-    )
-    return {'test': a_test_transform, 'training': a_train_transform, 'validation': a_valid_transform}
+    
+    return {'test': a_test_transform, 'training': None, 'validation': None}
 
 
 def data_samplers(data, reflect_transforms, batch_size=None):
-    '''retrurns data loaders called during training'''
-    test_ids = [idx for idx in data['training']][:20]
-    # a small subset for debugging if needed <^_^>
-    data_tester = {key: data['training'][key] for key in test_ids}
-    #change back
-
-    train_data_loader = ava_data_reflect(
-        data['training'], transform=reflect_transforms['training']
-    )
-    val_data_loader = ava_data_reflect(
-        data['validation'], transform=reflect_transforms['validation']
-    )
-    test_data_loader = ava_data_reflect(
-        data['test'], transform=reflect_transforms['test']
-    )
-    data_load_dict = {
-        'training': train_data_loader,
-        'validation': val_data_loader,
-        'test': test_data_loader
-    }
-    #Let there be 9 samples and 1 sample in class 0 and 1 respectively
-    labels = [data['training'][idx]['threshold'] for idx in data['training']]
-    class_counts = np.bincount(labels)
-    num_samples = sum(class_counts)
-    #corresponding labels of samples
-    class_weights = [num_samples/class_counts[i]
-                     for i in range(len(class_counts))]
-    weights = [class_weights[labels[i]] for i in range(int(num_samples))]
-    sampler = torch.utils.data.WeightedRandomSampler(
-        torch.DoubleTensor(weights), int(num_samples)
-    )
-    print(len(weights))
-    print(class_weights)
-    sampler = torch.utils.data.WeightedRandomSampler(
-        torch.DoubleTensor(weights), int(len(data['training'].keys()))
-    )
-    # with data sampler (note ->> must be same len[-,...,-] as train set!!)
-    train_loader = DataLoader(
-        dataset=train_data_loader,
-        sampler=sampler,
-        batch_size=batch_size,
-        shuffle=False
-    )
-
-    val_loader = DataLoader(
-        dataset=val_data_loader,
-        batch_size=batch_size,
-        shuffle=False
-    )
     test_loader = DataLoader(
         dataset=test_data_loader,
         batch_size=batch_size, shuffle=True)
-    return {'training': train_loader, 'validation': val_loader, 'test': test_loader}
+    return {'training': None, 'validation': None, 'test':test_loader }
 
 
 def seed_everything(seed):

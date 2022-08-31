@@ -1,4 +1,3 @@
-from ast import arg
 import wandb
 import torch
 import torchvision
@@ -6,7 +5,12 @@ import gc
 import platform
 
 from config import args
-from ava import get_all, data_samplers, data_transforms, ava_data_reflect
+
+if not args.inference:
+    from ava import get_all, data_samplers, data_transforms, ava_data_reflect
+else:
+    from inference import get_all, data_samplers, data_transforms, ava_data_reflect
+
 from download import get_dataset
 if args.inference:
     
