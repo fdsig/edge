@@ -64,7 +64,7 @@ if __name__ == '__main__':
         else:
             run = wandb.init()      
         model = torchvision.models.resnet18(pretrained=True)
-        model.head.fc.out_features = 2
+        model.fc = torch.nn.Linear(512,2)
         loaded = torch.load('models/resnet_18',
                             map_location=torch.device(args.device))
         model.load_state_dict(loaded['model_state_dict'])

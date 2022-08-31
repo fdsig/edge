@@ -6,8 +6,8 @@ import os
 import pandas as pd
 # file handling
 from time import time
-
-
+from torchvision import transforms
+from PIL import Image
 
 import numpy as np
 
@@ -179,11 +179,23 @@ def get_all(subset=None):
 
 def data_transforms(size=None):
     '''defines data transform and returns a dict with test,train,val transforms'''
+    test_transforms = transforms.Compose(
+
+    [  
+        transforms.Resize((224,224)),
+        transforms.ToTensor(),
+     
+
+    ]
+)
     
-    return {'test': a_test_transform, 'training': None, 'validation': None}
+    return {'test': test_transforms, 'training': None, 'validation': None}
 
 
-def data_samplers(data, reflect_transforms, batch_size=None):
+def data_samplers(data, ava_data_reflect,reflect_transforms,batch_size=None):
+    test_data_loader =  ava_data_reflect(
+        data['test'], transform=reflect_transforms['test']
+        )
     test_loader = DataLoader(
         dataset=test_data_loader,
         batch_size=batch_size, shuffle=True)
@@ -224,16 +236,16 @@ class ava_data_reflect(Dataset):
         if len(img.shape) != 3:
             img = np.stack([np.copy(img) for i in range(3)], axis=2)
 
-        #img = self.a_transform(image=img)['image']
+        #img = self.transform(image=img)
         # converst to pillow image from arry
         # this is faster as open cv reads image
         # faster than pillow
         # pillow also returns file read errors
         # for some image in ava dataset
         # cv2 does not.
-        #img = Image.fromarray(img.astype('uint8'), 'RGB')
+        img = Image.fromarray(img.astype('uint8'), 'RGB')
 
-        img_transformed = self.transform(image=img)['image']
+        img_transformed = self.transform(img)
         # gets one hot (binary) thresholded groud truth
 
         label = int(self.im_dict[self.files[idx]]['threshold'])
