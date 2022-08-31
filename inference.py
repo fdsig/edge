@@ -8,7 +8,6 @@ from pathlib import Path
 from time import time
 
 
-import albumentations as A
 import numpy as np
 
 import torch
@@ -23,19 +22,8 @@ from sklearn.utils import class_weight
 
 import random
 
-#
-
-from timm.scheduler import create_scheduler
-from timm.optim import create_optimizer
-
-from albumentations import pytorch
 from pathlib import Path
-
-
 from pathlib import Path
-
-
-from vit_pytorch.cvt import CvT
 import wandb
 
 
