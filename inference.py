@@ -70,7 +70,6 @@ def one_hot(df):
 
 def get_labels(df):
     y_df = one_hot(df)
-    print(y_df)
     path = Path(args.data_dir)
     if not path.exists():
         path.mkdir(parents=True)
