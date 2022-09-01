@@ -77,11 +77,7 @@ def meta_process(df=None):
 
 
 def one_hot(df):
-    one_hot = pd.get_dummies(df['MLS'])
-    one_hot = pd.merge(df['ID'],one_hot, right_on=df.index, left_index=True)
-    one_hot = one_hot[one_hot.columns[1:]]
-    y_df = pd.merge(one_hot,df[['threshold', 'ID','MOS','MLS','set']], right_on=one_hot.index, left_index=True)
-    return y_df[y_df.columns[2:]]
+    return df[df.columns[2:]]
 
 
 
