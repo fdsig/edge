@@ -103,10 +103,13 @@ cd Images && unzip crushed.zip
 - [ ] port models to onnx
 - [x] change boot partition to ssd
 - [x] update inference.py to torchvision (albumentations not needed for inference)
-- [ ] remove sklearn dependency for inference ( should training be a part of edge repo at all?)
+- [x] remove sklearn dependency for inference ( should training be a part of edge repo at all?)
 - [ ] comment code file reading section fo main.py
-- [ ] downgrade to python 3.6 
-
+- [x] downgrade to python 3.6 
+- [ ] update dowload args parser (to actually work http://www.desigley.space/ava/crushed.zip)
+- [ ] train weather classifier (mobilevit/resnet)
+- [ ] explore best way to export import models (ONNX not availbale in 3.6)
+- [ ] ...
 #Flashing system/setting up for first use (Nvidia SDK Manager and Auvidea Carrier board)
 
 Auvidea carried board with Jeston (nano, tx xn) can be found [here](https://www.google.com/url?q=https://auvidea.eu/download/QuickStart.pdf&sa=U&ved=2ahUKEwjVi_b21Mb5AhWJhP0HHWYxBhEQFnoECAoQAg&usg=AOvVaw3gJ2ZtS91IDzuISZQC_bm8)
