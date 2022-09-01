@@ -465,7 +465,6 @@ def deep_eval(model, model_name=None):
 
     return results_dict
 
-
 df, y_g_dict, data, neg, pos = get_all()
 reflect_transforms = data_transforms(size=224)
 data_load_dict = data_samplers(data, ava_data_reflect, batch_size=200)
