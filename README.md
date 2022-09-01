@@ -102,7 +102,8 @@ Set up and clone, using ssd M2
 - [ ] benchmark cpu
 - [ ] port models to onnx
 - [x] change boot partition to ssd
-- [ ] update inference.py to torchvision (albumentations not needed for inference)
+- [x ] update inference.py to torchvision (albumentations not needed for inference)
+- [ ] remove sklearn dependency for inference ( should training be a part of edge repo at all?)
 - [ ] comment code file reading section fo main.py
 - [ ] downgrade to python 3.6 
 
