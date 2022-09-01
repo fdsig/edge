@@ -1,28 +1,30 @@
-from __future__ import print_function
-from re import sub
+# Utils
 from config import args
-import cv2
-import os
-import pandas as pd
-# file handling
-from time import time
-from torchvision import transforms
-from PIL import Image
-
-import numpy as np
-
-import torch
-import torch.nn as nn
-
-
-from torch.utils.data import DataLoader, Dataset
+import random 
 from tqdm import tqdm
 
-from sklearn.utils import class_weight
+# file handling
+from time import time
 
-import random
+# image 
+from torchvision import transforms
+from PIL import Image
+import cv2
 
+# data
+import numpy as np
+import pandas as pd
+
+# training/inference
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, Dataset
+
+# files
 from pathlib import Path
+import os
+
+# tracking/ production monitoring
 import wandb
 
 
@@ -69,16 +71,6 @@ def one_hot(df):
                     'MLS', 'set']], right_on=one_hot.index, left_index=True)
     return y_df[y_df.columns[2:]]
 
-
-def sort_show():
-    ava = [i.path for i in os.scandir('Images/')]
-    ava.sort()
-    def read(fid): return cv2.cvtColor(cv2.imread(fid),
-                                       cv2.COLOR_BGR2RGB)
-    img = read(ava[0])
-    print(img.shape)
-    fig, ax = plt.subplots(1, 1, figsize=(5, 5))
-    ax.imshow(img)
 
 
 def get_labels(df):
@@ -138,18 +130,6 @@ def make_class_dir(df, y_g_dict):
     return y_g_dict
 
 
-def class_wts(df):
-    '''computes class weights for training samplere'''
-    y_gt = df.values.ravel()
-    y_gt_ = np.array(y_gt)
-    y = np.bincount(y_gt_)
-    x = np.unique(y_gt_)
-    print(len(y), len(x))
-    class_weights = class_weight.compute_class_weight(
-        'balanced', classes=x, y=y_gt_)
-    class_weights = torch.tensor(class_weights, dtype=torch.float)
-    print(class_weights)
-    return class_weights, y
 
 
 def get_all(subset=None):
@@ -158,7 +138,6 @@ def get_all(subset=None):
     df = meta_process(df=df)
     if subset:
         df = df.head(1000)
-    class_weights, class_counts = class_wts(df['threshold'])
     y_g_dict = get_labels(df)
     make_class_dir(df, y_g_dict)
     y_g_neg = {key: y_g_dict[key]
