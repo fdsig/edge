@@ -21,7 +21,10 @@ else:
 
 
 if __name__ == '__main__':
-    
+    if torch.cuda.is_available():
+        device = 'cuda'
+    else:
+        device = 'cpu'    
     if args.download:
         assert args.dataset in ['ava']
         get_data = get_dataset(
@@ -34,7 +37,7 @@ if __name__ == '__main__':
         get_data.unzip(out_dir='../images')
     
 
-    df, y_g_dict, data, neg, pos = get_all(subset=True)
+    df, y_g_dict, data, neg, pos = get_all(subset=args.subset)
     reflect_transforms = data_transforms(size=224)
     # data_loader = data_samplers(
     #     data=data, 

@@ -38,7 +38,8 @@ parser.add_argument('--data_dir', type=str, default='../data/images/',
                     help='dir to unzip images to defaults to images on step above current dir ')
 parser.add_argument('--out_dir',type=str, default='../data/',
                     help='path where test train split default to ../data/ one step above current working dir')
-
+parser.add_argument('--subset', action='store_true',
+                    help='create smaller subset of 1000 images for debugging')
 parser.add_argument('-d', type=Path, default='wandb/wandb/settings')
 args = parser.parse_args()
 print(args.d)
