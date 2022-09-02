@@ -41,5 +41,6 @@ parser.add_argument('--out_dir',type=str, default='../data/',
 parser.add_argument('--subset', action='store_true',
                     help='create smaller subset of 1000 images for debugging')
 parser.add_argument('-d', type=Path, default='wandb/wandb/settings')
+parser.add_argument('--batch_size', type=int, default='128', help='batch size for training or inference set to 128 by default')
 args = parser.parse_args()
 print(args.d)

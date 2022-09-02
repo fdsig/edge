@@ -136,7 +136,7 @@ def get_all(subset=None):
     y_g_dict = get_labels(df)
     make_class_dir(df, y_g_dict)
     y_g_neg = {key: y_g_dict[key]
-               for key in y_g_dict if y_g_dict[key]['threshold'] == 0}
+               for key in tqdm(y_g_dict) if y_g_dict[key]['threshold'] == 0}
     y_g_pos = {key: y_g_dict[key]
                for key in y_g_dict if y_g_dict[key]['threshold'] == 1}
     sets = ['test', 'training', 'validation']
@@ -234,6 +234,7 @@ def deep_eval(model,data_load_dict:dict, model_name=None):
     '''validatioan loop ruturns metrics dict for passed model'''
     criterion = nn.CrossEntropyLoss()
     if torch.cuda.is_available():
+    
         device  = 'cuda'
     else:
         device = 'cpu'
@@ -272,8 +273,7 @@ def deep_eval(model,data_load_dict:dict, model_name=None):
                     'g_t_class': int(lab.cpu())}
                 logits.append(prob.cpu().tolist())
                 pc.append(prob.argmax(dim=0).cpu())
-
-            val_loss = criterion(output, label)
+            
             acc = (output.argmax(dim=1) == label).float().mean()
             acc = float(acc.cpu())
             batch_acc.append(acc)
