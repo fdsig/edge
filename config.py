@@ -5,8 +5,6 @@ parser = argparse.ArgumentParser(
     description='Training Binary Classifiers on AVA dataset for Edge computing/mobile device deployment')
 
 
-parser.add_argument('--batch_size', default=None,
-                    type=bool, help='batch_size')
 parser.add_argument('--timm_model', default='mobile_vit_xxs',
                     type=str, help='modle_selected_from_timm_repository')
 parser.add_argument('--n_workers', default='cpu', type=str, help='inference ')
