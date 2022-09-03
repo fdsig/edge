@@ -262,7 +262,6 @@ def deep_eval(model,run:wandb.run,data_load_dict:dict, model_name=None ):
             output = model(data)
             d_t = time()-t
             run.log({'inference_time': d_t})
-            print(t)
             sm = torch.nn.Softmax(dim=1)
             probabilities = sm(output)
 
@@ -274,12 +273,10 @@ def deep_eval(model,run:wandb.run,data_load_dict:dict, model_name=None ):
                 run.log(inference_dict)
                 logits.append(prob.cpu().tolist())
                 pc.append(prob.argmax(dim=0).cpu())
-            
             acc = (output.argmax(dim=1) == label).float().mean()
             acc = float(acc.cpu())
             batch_acc.append(acc)
             run.log({'batch_acc': acc})
-
             # batches_dict['images'] = images
             # batches_dict['labels'] = labels
             # batches_dict['predicted'] = pc
@@ -287,6 +284,5 @@ def deep_eval(model,run:wandb.run,data_load_dict:dict, model_name=None ):
             # df = pd.DataFrame.from_dict(batches_dict)
             # tbl = wandb.Table(data=df)
             # run.log({'batch_tablse': tbl})
-
     run.log({'test_acc': np.mean(batch_acc)})
     return results_dict
