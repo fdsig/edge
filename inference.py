@@ -267,10 +267,11 @@ def deep_eval(model,run:wandb.run,data_load_dict:dict, model_name=None ):
             probabilities = sm(output)
 
             for dir_, prob, lab in zip(fid, probabilities, label):
-                inference_dict[dir_.split('/')[-1]] = {
+                inference_dict = {
                     'class_probs': prob.cpu().tolist(),
                     'pred_class': int(prob.argmax(dim=0).cpu()),
                     'g_t_class': int(lab.cpu())}
+                run.log(inference_dict)
                 logits.append(prob.cpu().tolist())
                 pc.append(prob.argmax(dim=0).cpu())
             
@@ -280,12 +281,12 @@ def deep_eval(model,run:wandb.run,data_load_dict:dict, model_name=None ):
             run.log({'batch_acc': acc})
 
             # batches_dict['images'] = images
-            batches_dict['labels'] = labels
-            batches_dict['predicted'] = pc
-            batches_dict['logits'] = logits
-            df = pd.DataFrame.from_dict(batches_dict)
-            tbl = wandb.Table(data=df)
-            run.log({'batch_tablse': tbl})
+            # batches_dict['labels'] = labels
+            # batches_dict['predicted'] = pc
+            # batches_dict['logits'] = logits
+            # df = pd.DataFrame.from_dict(batches_dict)
+            # tbl = wandb.Table(data=df)
+            # run.log({'batch_tablse': tbl})
 
     run.log({'test_acc': np.mean(batch_acc)})
     return results_dict
