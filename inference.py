@@ -230,7 +230,7 @@ class ava_data_reflect(Dataset):
         return img_transformed, label, self.im_dict[self.files[idx]]['fid']
 
 
-def deep_eval(model,data_load_dict:dict, model_name=None):
+def deep_eval(model,run:wandb.run,data_load_dict:dict, model_name=None ):
     '''validatioan loop ruturns metrics dict for passed model'''
     criterion = nn.CrossEntropyLoss()
     if torch.cuda.is_available():
@@ -261,7 +261,7 @@ def deep_eval(model,data_load_dict:dict, model_name=None):
             t = time()
             output = model(data)
             d_t = time()-t
-            wandb.log({'inference_time': d_t})
+            run.log({'inference_time': d_t})
             print(t)
             sm = torch.nn.Softmax(dim=1)
             probabilities = sm(output)
@@ -277,7 +277,7 @@ def deep_eval(model,data_load_dict:dict, model_name=None):
             acc = (output.argmax(dim=1) == label).float().mean()
             acc = float(acc.cpu())
             batch_acc.append(acc)
-            wandb.log({'batch_acc': acc})
+            run.log({'batch_acc': acc})
 
             batches_dict['images'] = images
             batches_dict['labels'] = labels
@@ -285,8 +285,8 @@ def deep_eval(model,data_load_dict:dict, model_name=None):
             batches_dict['logits'] = logits
             df = pd.DataFrame.from_dict(batches_dict)
             tbl = wandb.Table(data=df)
-            wandb.log({'batch_table': tbl})
+            run.log({'batch_table': tbl})
 
-    wandb.log({'test_acc': np.mean(batch_acc)})
+    run.log({'test_acc': np.mean(batch_acc)})
 
     return results_dict

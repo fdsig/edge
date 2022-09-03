@@ -72,9 +72,8 @@ if __name__ == '__main__':
                             map_location=torch.device(args.device))
         model.load_state_dict(loaded['model_state_dict'])
         model.to(device)
-        run.watch(model)
         data_load_dict = data_samplers(data,ava_data_reflect,reflect_transforms,batch_size=args.batch_size)
-        evaluation = deep_eval(model, data_load_dict=data_load_dict)
+        evaluation = deep_eval(model,run, data_load_dict=data_load_dict)
         print('logging wandb table')
         run.finish()
     else:
