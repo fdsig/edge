@@ -234,10 +234,10 @@ def deep_eval(model,run:wandb.run,data_load_dict:dict, model_name=None ):
     '''validatioan loop ruturns metrics dict for passed model'''
     criterion = nn.CrossEntropyLoss()
     if torch.cuda.is_available():
-    
         device  = 'cuda'
     else:
         device = 'cpu'
+    print(f'device for inference = {device}')
     model.to(device)
     batches_dict = {}
     results_dict = {}
@@ -253,8 +253,8 @@ def deep_eval(model,run:wandb.run,data_load_dict:dict, model_name=None ):
         model.eval()
         for data, label, fid in tqdm(data_load_dict['test']):
             data = data.to(device)
-            for img in data:
-              images.append(wandb.Image(img))
+            # for img in data:
+            #   images.append(wandb.Image(img))
             for lab in label:
               labels = np.append(labels, [lab])
             label = label.to(device)
@@ -279,14 +279,13 @@ def deep_eval(model,run:wandb.run,data_load_dict:dict, model_name=None ):
             batch_acc.append(acc)
             run.log({'batch_acc': acc})
 
-            batches_dict['images'] = images
+            # batches_dict['images'] = images
             batches_dict['labels'] = labels
             batches_dict['predicted'] = pc
             batches_dict['logits'] = logits
             df = pd.DataFrame.from_dict(batches_dict)
             tbl = wandb.Table(data=df)
-            run.log({'batch_table': tbl})
+            run.log({'batch_tablse': tbl})
 
     run.log({'test_acc': np.mean(batch_acc)})
-
     return results_dict
