@@ -65,9 +65,9 @@ if __name__ == '__main__':
                         arg_= arg_.strip('\n').strip(' ')
                         param = param.strip('\n').strip(' ')
                         args.arg_=param
-            run = wandb.init(entity=args.entity, project=args.project)
+            run = wandb.init(entity=args.entity, project=args.project, tags=wb_tags)
         else:
-            run = wandb.init()      
+            run = wandb.init(group = platform.node(), tags=wb_tags)      
         model = torchvision.models.resnet18(pretrained=True)
         model.fc = torch.nn.Linear(512,2)
         loaded = torch.load('models/resnet_18',
