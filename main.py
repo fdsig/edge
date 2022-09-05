@@ -47,7 +47,7 @@ if __name__ == '__main__':
     #     batch_size=args.batch_size)
     if args.inference:
 
-        wandb.login()
+        wandb.login(host='https://api.wandb.ai/')
         print(f'running in inference mode{"8"*30}')
         wb_tags = ['inference', platform.system(), platform.system(),
                    platform.release(), socket.gethostname(), platform.node()]
