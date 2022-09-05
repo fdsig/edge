@@ -3,6 +3,7 @@ import torch
 import torchvision
 import gc 
 import platform
+import socket
 
 from config import args
 
@@ -49,12 +50,12 @@ if __name__ == '__main__':
         wandb.login()
         print(f'running in inference mode{"8"*30}')
         wb_tags = ['inference', platform.system(), platform.system(),
-                   platform.release()]
+                   platform.release(), socket.gethostname(), platform.node()]
         if  args.entity and args.project and args.tags:
             run = wandb.init(entity=args.entity, project=args.project, tags=args.tags)
         elif args.entity and args.project:
             run = wandb.init(entity=args.entity, project=args.project, 
-            group = platform.platform())
+            group = platform.node())
         elif args.d.exists():
             with args.d.open('r') as hndl:
                 for default in hndl.readlines():
