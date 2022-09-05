@@ -4,6 +4,7 @@ import torchvision
 import gc 
 import platform
 import socket
+import os
 
 from config import args
 
@@ -22,6 +23,7 @@ else:
 
 
 if __name__ == '__main__':
+    os.environ['WANDB_HOST'] = 'https://api.wandb.ai/'
     if torch.cuda.is_available():
         device = 'cuda'
     else:
