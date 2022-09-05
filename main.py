@@ -53,7 +53,8 @@ if __name__ == '__main__':
         if  args.entity and args.project and args.tags:
             run = wandb.init(entity=args.entity, project=args.project, tags=args.tags)
         elif args.entity and args.project:
-            run = wandb.init(entity=args.entity, project=args.project)
+            run = wandb.init(entity=args.entity, project=args.project, 
+            group = platform.platform())
         elif args.d.exists():
             with args.d.open('r') as hndl:
                 for default in hndl.readlines():
