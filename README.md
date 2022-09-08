@@ -99,7 +99,7 @@ cd Images && unzip crushed.zip
 
 - [x] Set up and clone, using ssd M2 
 
-- [ ] benchmark cpu
+- [x] benchmark cpu
 - [ ] port models to onnx
 - [x] change boot partition to ssd
 - [x] update inference.py to torchvision (albumentations not needed for inference)
@@ -132,7 +132,7 @@ to do:
 
 
 To do
-- [ ] benchmark inferenc
+- [x] benchmark inferenc
 - [ ] benchmanrk on device trining
 - [ ] stream from camera to jetson
 - [ ] deploy in the wild
