@@ -131,13 +131,14 @@ to do:
 
 
 
-To do
-- [x] benchmark inferenc
-- [ ] benchmanrk on device trining
-- [ ] stream from camera to jetson
-- [ ] deploy in the wild
+To do high level
+- [x] benchmark inference
+- [ ] benchmanrk on device trining.
+- [ ] stream from camera to jetson.
+- [ ] deploy in the wild.
 - [ ] transfer learning on manually labeled dataset
 - [ ] train weather classifier from images. 
+- [ ] write wand report documenting journey.
 
 
 ## of wider interset:
