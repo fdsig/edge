@@ -71,12 +71,13 @@ exec "$SHELL"
 
 to create verison of python
 
-```pyenv install 3.10.1
+```bash
+pyenv install 3.10.1
 pyenv virtualenv 3.10.1 edge
 ```
 
 
-log in to raspberry pi and git clone repository
+log in to raspberry pi over SSH and git clone repository
 
 
 
