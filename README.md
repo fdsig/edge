@@ -105,7 +105,7 @@ cd Images && unzip crushed.zip
 - [x] change boot partition to ssd
 - [x] update inference.py to torchvision (albumentations not needed for inference)
 - [x] remove sklearn dependency for inference ( should training be a part of edge repo at all?)
-- [ ] comment code file reading section fo main.py
+- [ ] comment code file reading section for main.py
 - [x] downgrade to python 3.6 
 - [ ] update dowload args parser (to actually work http://www.desigley.space/ava/crushed.zip)
 - [ ] train weather classifier (mobilevit/resnet)
